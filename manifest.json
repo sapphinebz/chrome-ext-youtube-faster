@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "PlaybackRate Faster",
+  "version": "0.0.1",
+  "background": {
+    "service_worker": "service_workers/background.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://github.com/parcel-bundler/*"],
+      "js": ["scripts/parcel-content-script.ts"]
+    },
+    {
+      "js": ["scripts/youtube.ts"],
+      "matches": ["https://www.youtube.com/*"]
+    }
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "images/icon16_16.png"
+  }
+}

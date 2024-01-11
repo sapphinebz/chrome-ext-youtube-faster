@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="module" src="./src/index.ts"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h3>Playback rate</h3>
+    <div>
+      <input
+        type="range"
+        data-playback-rate
+        step="0.5"
+        name="playback-rate"
+        min="1"
+        max="11"
+      />
+      <label for="volume">Rate: <span id="inptVolume"></span></label>
+      <div>
+        <button data-reset-btn type="button">Stop</button>
+      </div>
+    </div>
+  </body>
+</html>

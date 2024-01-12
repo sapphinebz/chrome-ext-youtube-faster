@@ -1,7 +1,8 @@
 {
   "scripts": {
     "build": "npx parcel build manifest.json ",
-    "start": "npx parcel watch manifest.json --host localhost "
+    "start": "npx parcel watch manifest.json --host localhost",
+    "clean": "rm -rf dist .parcel-cache"
   },
   "devDependencies": {
     "@parcel/config-webextension": "^2.11.0",

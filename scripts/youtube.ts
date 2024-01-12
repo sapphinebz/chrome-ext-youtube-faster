@@ -1,4 +1,5 @@
-import { runtimeOnMessage } from "../src/rx/listen-message";
+import { onRequestAction } from "../src/rx/on-request-action";
+import { runtimeOnMessage } from "../src/rx/runtime-on-message";
 import { filter, share } from "rxjs/operators";
 
 console.log("youtube.ts");
@@ -6,15 +7,13 @@ chrome.runtime.sendMessage({
   ready: true,
 });
 
-const runtimeMessage$ = runtimeOnMessage().pipe(share());
+const runtimeMessage$ = runtimeOnMessage();
 const onPlaybackRateIncoming$ = runtimeMessage$.pipe(
-  filter(({ request }) => request.playbackRate),
-  share()
+  onRequestAction("playbackRate")
 );
 
 const onRequireCurPlaybackRate$ = runtimeMessage$.pipe(
-  filter(({ request }) => request.reqCurPlaybackRate),
-  share()
+  onRequestAction("requestCurState")
 );
 
 onPlaybackRateIncoming$.subscribe(({ request, sendResponse }) => {
@@ -23,7 +22,7 @@ onPlaybackRateIncoming$.subscribe(({ request, sendResponse }) => {
   sendResponse({ status: "ok" });
 });
 
-onRequireCurPlaybackRate$.subscribe(({ request, sendResponse }) => {
+onRequireCurPlaybackRate$.subscribe(({ sendResponse }) => {
   const videoEl = document.querySelector("video")!;
   sendResponse({
     playbackRate: videoEl.playbackRate,

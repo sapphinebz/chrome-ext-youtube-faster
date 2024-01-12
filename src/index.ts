@@ -1,6 +1,14 @@
-import { ReplaySubject, fromEvent } from "rxjs";
-import { concatMap, distinctUntilChanged, map, tap } from "rxjs/operators";
-import { runtimeOnMessage } from "./rx/listen-message";
+import { ReplaySubject, firstValueFrom, fromEvent } from "rxjs";
+import {
+  concatMap,
+  distinctUntilChanged,
+  first,
+  map,
+  share,
+  tap,
+} from "rxjs/operators";
+import { runtimeOnMessage } from "./rx/runtime-on-message";
+import { onRequestAction } from "./rx/on-request-action";
 
 console.log("extension init");
 
@@ -11,6 +19,8 @@ const inptVolumeEl = document.querySelector<HTMLSpanElement>("#inptVolume")!;
 const resetBtnEl =
   document.querySelector<HTMLButtonElement>("[data-reset-btn]")!;
 const playRateValue$ = new ReplaySubject<number>(1);
+const runtimeMessage$ = runtimeOnMessage();
+const onTabReady$ = runtimeMessage$.pipe(onRequestAction("ready"));
 
 fromEvent(rangePlaybackRateEl, "input")
   .pipe(
@@ -35,7 +45,6 @@ playRateValue$
         active: true,
       });
 
-      console.log(tab);
       try {
         await sendToYoutube(tab, value);
       } catch (err) {
@@ -43,9 +52,7 @@ playRateValue$
         if (tab.id) {
           await chrome.tabs.reload(tab.id);
         }
-        console.log("after reloaded");
         const _tab = await tabAvailable();
-        console.log("after delay");
         await sendToYoutube(_tab, value);
       }
       inptVolumeEl.innerText = `${value}`;
@@ -73,33 +80,23 @@ async function syncCurrentPlaybackRate() {
 }
 
 async function syncPlaybackRate(tabId: number) {
+  console.log(`request current state tabId: ${tabId}`);
   const response = await chrome.tabs.sendMessage(tabId, {
-    reqCurPlaybackRate: true,
+    requestCurState: true,
   });
-
-  console.log("sync response", response);
+  console.log(`response current state ${response}`);
 
   rangePlaybackRateEl.value = response.playbackRate;
   inptVolumeEl.innerText = `${response.playbackRate}`;
 }
 
-function delay(duration: number) {
-  return new Promise((resolve) => setTimeout(resolve, duration));
-}
-
 function tabAvailable() {
-  return new Promise<chrome.tabs.Tab>((resolve, reject) => {
-    const subscription = runtimeOnMessage().subscribe((context) => {
-      if (context.request.ready) {
-        if (context.sender.tab) {
-          resolve(context.sender.tab);
-          subscription.unsubscribe();
-        } else {
-          reject("tab unvailable");
-        }
-      }
-    });
-  });
+  return firstValueFrom(
+    onTabReady$.pipe(
+      map((context) => context.sender.tab),
+      first((tab): tab is chrome.tabs.Tab => Boolean(tab))
+    )
+  );
 }
 
 async function sendToYoutube(tab: chrome.tabs.Tab, playbackRate: number) {

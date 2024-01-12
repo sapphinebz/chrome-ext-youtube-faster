@@ -5,7 +5,6 @@
   },
   "devDependencies": {
     "@parcel/config-webextension": "^2.11.0",
-    "@types/chrome": "^0.0.256",
     "chrome-types": "^0.1.248",
     "parcel": "^2.11.0"
   },

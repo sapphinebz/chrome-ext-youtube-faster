@@ -1,3 +1,4 @@
+/// <reference types="chrome-types" />
 import { ReplaySubject, firstValueFrom, fromEvent } from "rxjs";
 import {
   concatMap,

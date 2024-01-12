@@ -1,6 +1,5 @@
 import { onRequestAction } from "../src/rx/on-request-action";
 import { runtimeOnMessage } from "../src/rx/runtime-on-message";
-import { filter, share } from "rxjs/operators";
 
 console.log("youtube.ts");
 chrome.runtime.sendMessage({
